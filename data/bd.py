@@ -20,17 +20,14 @@ class DataBase:
                 self.cursor.execute("UPDATE users SET activ = 1 WHERE user_id = ?", (user_id,))
                 self.connection.commit()
 
-
     def off_user(self, user_id):
         with self.connection:
             self.cursor.execute("UPDATE users SET activ = 0 WHERE user_id = ?", (user_id,))
             self.connection.commit()
 
-
     def select_users(self):
         with self.connection:
             return self.cursor.execute("SELECT user_id FROM users WHERE activ = 1").fetchall()
-
 
     def add_product(self, user_id, product: dict):
         bd_user_prod = [user_id]
@@ -41,7 +38,6 @@ class DataBase:
                                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?)", bd_user_prod)
             self.connection.commit()
 
-
     def del_product_bd(self, data_id):
         with self.connection:
             self.cursor.execute("DELETE FROM 'users_product' WHERE user_id = ? AND id_prod = ?", data_id)
@@ -51,8 +47,6 @@ class DataBase:
             self.cursor.execute("UPDATE users_product SET min_prise = ?, prise = ? WHERE user_id = ? AND id_prod = ?", change_data)
             self.connection.commit()
 
-
-
     def all_product_in_user(self, user_id):
         try:
             with self.connection:
@@ -60,15 +54,11 @@ class DataBase:
         except sqlite3.OperationalError:
             return False
 
-
     def select_user_prod(self, user_id, product_id):
         with self.connection:
-            if (self.cursor.execute("SELECT user_id, id_prod FROM users_product WHERE user_id = ? AND id_prod = ?", (user_id, product_id,)).fetchone()):
+            if (
+                    self.cursor.execute("SELECT user_id, id_prod FROM users_product WHERE user_id = ? AND id_prod = ?",
+                                        (user_id, product_id,)).fetchone()):
                 return True
             else:
                 return False
-
-
-
-# x = DataBase('database.db')
-# x.select_user_prod(1272037006, 61165745)
