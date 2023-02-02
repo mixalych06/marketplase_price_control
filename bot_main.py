@@ -1,7 +1,9 @@
 import aiogram.utils.exceptions
+#from aiogram.utils.exceptions import BotBlocked
+
 from aiogram import Bot, types
 from aiogram.dispatcher import Dispatcher
-from aiogram.utils import executor
+from aiogram.utils import executor, exceptions
 from pars_wildberris import all_pars, parsing_evry_day
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
 import asyncio
@@ -11,7 +13,7 @@ from time import sleep
 import os
 from dotenv import load_dotenv, find_dotenv
 
-
+#sdd_db()
 load_dotenv(find_dotenv())
 
 bot: Bot = Bot(os.getenv('TOKEN'))
@@ -46,6 +48,7 @@ async def command_start(message: types.Message):
                              caption=f'<b>Привет, {message.from_user.first_name}!</b>\n'
                                      f'{HELLO}<i>С вопросами и предложениями по работе бота обращайтесь к администратору @mixalych06</i>',
                              parse_mode='HTML', reply_markup=keyword)
+
 
 
 @dp.message_handler(text='🆘Помощь')
@@ -179,7 +182,10 @@ async def scheduled(wait_for):
                                 continue
                             else:
                                 db.changes_product_data((prod[4], new_pars_produkt['salePriceU'], prod[0], prod[1]))
+                                await bot.send_message(user[0], text='hfg')
                     except:
+                        print('hjg')
+
                         db.off_user(prod[0])
             else:
 
@@ -187,5 +193,5 @@ async def scheduled(wait_for):
 
 if __name__ == '__main__':
     loop = asyncio.get_event_loop()
-    loop.create_task(scheduled(10800))
+    loop.create_task(scheduled(10))
     executor.start_polling(dp, skip_updates=True)

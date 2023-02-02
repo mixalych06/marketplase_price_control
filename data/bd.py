@@ -1,10 +1,19 @@
 import sqlite3
 
 
+
 class DataBase:
     def __init__(self, bd_file):
         self.connection = sqlite3.connect(bd_file)
         self.cursor = self.connection
+        self.connection.execute('CREATE TABLE IF NOT EXISTS users_product (user_id NOT NULL, id_prod NOT NULL,'
+                     'name_prod NOT NULL, start_prise NOT NULL, min_prise, prise, link_photo  STRING  NOT NULL,'
+                     'link STRING  NOT NULL, valye INTEGER DEFAULT 1)')
+        self.connection.execute('CREATE TABLE IF NOT EXISTS users (ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, user_id UNIQUE NOT NULL,'
+                                'activ INTEGER DEFAULT 1)')
+        self.connection.commit()
+
+
 
     def user_exists(self, user_id):
         with self.connection:
