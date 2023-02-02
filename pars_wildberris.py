@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 import requests
-from bs4 import BeautifulSoup
 from fake_useragent import UserAgent
-import json
+
 
 url_get = 'https://card.wb.ru/cards/detail?spp=0&regions=80,4,38,70,69,86,30,40,48,1,' \
           '112&pricemarginCoeff=1&reg=0&appType=1&emp=0&locale=ru&lang=ru&curr=rub&couponsGeo=' \

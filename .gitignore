@@ -1,4 +1,7 @@
 # created by virtualenv automatically
-env/Lib
 .env
-data/database.db
+./data/database.db
+.mypy_cache/
+.vscode/
+venv/
+__pycache__/

@@ -1,6 +1,4 @@
 import aiogram.utils.exceptions
-#from aiogram.utils.exceptions import BotBlocked
-
 from aiogram import Bot, types
 from aiogram.dispatcher import Dispatcher
 from aiogram.utils import executor, exceptions
@@ -9,14 +7,14 @@ from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMar
 import asyncio
 from random import choice
 from data.bd import DataBase
-from time import sleep
 import os
-from dotenv import load_dotenv, find_dotenv
+from config import Config, load_config
 
-#sdd_db()
-load_dotenv(find_dotenv())
 
-bot: Bot = Bot(os.getenv('TOKEN'))
+config: Config = load_config('.env')
+BOT_TOKEN: str = config.tg_bot.token
+
+bot: Bot = Bot(BOT_TOKEN)
 dp: Dispatcher = Dispatcher(bot)
 keyword: ReplyKeyboardMarkup = ReplyKeyboardMarkup(resize_keyboard=True)
 
@@ -182,10 +180,7 @@ async def scheduled(wait_for):
                                 continue
                             else:
                                 db.changes_product_data((prod[4], new_pars_produkt['salePriceU'], prod[0], prod[1]))
-                                await bot.send_message(user[0], text='hfg')
                     except:
-                        print('hjg')
-
                         db.off_user(prod[0])
             else:
 
@@ -193,5 +188,5 @@ async def scheduled(wait_for):
 
 if __name__ == '__main__':
     loop = asyncio.get_event_loop()
-    loop.create_task(scheduled(10))
+    loop.create_task(scheduled(10800))
     executor.start_polling(dp, skip_updates=True)
