@@ -1,4 +1,6 @@
 import aiogram.utils.exceptions
+#from aiogram.utils.exceptions import BotBlocked
+
 from aiogram import Bot, types
 from aiogram.dispatcher import Dispatcher
 from aiogram.utils import executor, exceptions
@@ -7,14 +9,14 @@ from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMar
 import asyncio
 from random import choice
 from data.bd import DataBase
+from time import sleep
 import os
-from config import Config, load_config
+from dotenv import load_dotenv, find_dotenv
 
 
-config: Config = load_config('.env')
-BOT_TOKEN: str = config.tg_bot.token
+load_dotenv(find_dotenv())
 
-bot: Bot = Bot(BOT_TOKEN)
+bot: Bot = Bot(os.getenv('TOKEN'))
 dp: Dispatcher = Dispatcher(bot)
 keyword: ReplyKeyboardMarkup = ReplyKeyboardMarkup(resize_keyboard=True)
 
@@ -31,6 +33,7 @@ HELLO = f'🤖Я Телеграм-Бот!\nЯ могу отслеживать ц
         f'   ❤товар удалён\n' \
         f'   ❤товар снова дотсупен по ссылке\n'\
         f'Ваши ранее загруженные ссылки можно посмотреть нажав на кнопку "🛍Мои товары"\n\n'
+
 
 
 @dp.message_handler(commands=['start', 'help'])
@@ -180,7 +183,9 @@ async def scheduled(wait_for):
                                 continue
                             else:
                                 db.changes_product_data((prod[4], new_pars_produkt['salePriceU'], prod[0], prod[1]))
+
                     except:
+
                         db.off_user(prod[0])
             else:
 
