@@ -14,9 +14,9 @@ import os
 from dotenv import load_dotenv, find_dotenv
 
 
-load_dotenv(find_dotenv())
+load_dotenv(find_dotenv(filename='.env'))
 
-bot: Bot = Bot(str(os.getenv('TOKEN')))
+bot: Bot = Bot(os.getenv('TOKEN'))
 dp: Dispatcher = Dispatcher(bot)
 keyword: ReplyKeyboardMarkup = ReplyKeyboardMarkup(resize_keyboard=True)
 
