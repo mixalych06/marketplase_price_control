@@ -47,10 +47,17 @@ class DataBase:
             self.cursor.execute("UPDATE users_product SET min_prise = ?, prise = ? WHERE user_id = ? AND id_prod = ?", change_data)
             self.connection.commit()
 
+    def changes_product_valye(self,  user_id, product_id, valye):
+        with self.connection:
+            self.cursor.execute("UPDATE users_product SET valye = ? WHERE user_id = ? AND id_prod = ?", (valye, user_id, product_id,))
+            self.connection.commit()
+
     def all_product_in_user(self, user_id):
         try:
             with self.connection:
+
                 return self.cursor.execute("SELECT * FROM 'users_product' WHERE user_id = ?", (user_id,)).fetchall()
+
         except sqlite3.OperationalError:
             return False
 
