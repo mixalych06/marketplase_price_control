@@ -8,7 +8,7 @@ from keyboards.user_keyboards import keyword
 import os
 from dotenv import load_dotenv, find_dotenv
 
-load_dotenv(find_dotenv(filename='.env'), encoding="utf-8")
+load_dotenv('.env', encoding="utf-8")
 ROOT_U = int(os.getenv('ROOT_USER'))
 
 
