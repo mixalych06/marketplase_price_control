@@ -8,7 +8,7 @@ from keyboards.user_keyboards import keyword
 import os
 from dotenv import load_dotenv, find_dotenv
 load_dotenv(find_dotenv(filename='.env'), encoding="utf-8", override=True)
-ROOT_U = int(os.environ.get('ROOT_USER'))
+ROOT_U = os.environ.get('ROOT_USER')
 
 
 class FSMRoot(StatesGroup):
@@ -53,7 +53,7 @@ async def del_id_admin(message: types.Message, state: FSMContext):
 
 
 async def command_start_admin(message: types.Message):
-    if message.from_user.id == ROOT_U:
+    if message.from_user.id == int(ROOT_U):
         await message.answer('Привет, Создатель!', reply_markup=keyword_root_user)
         return
     elif db.su_user_exists(message.from_user.id):
@@ -68,7 +68,7 @@ async def user_id(message: types.Message):
 
 
 async def command_how_many_users(message: types.Message):
-    if message.from_user.id == ROOT_U:
+    if message.from_user.id == int(ROOT_U):
         await message.answer(f'Активных пользователей: {len(db.select_users())}\n'
                              f'Не активных пользователей: {len(db.select_off_users())}')
         return
@@ -82,7 +82,7 @@ async def command_how_many_users(message: types.Message):
 
 async def add_admin(message: types.Message):
     print(message.values)
-    if message.from_user.id == ROOT_U:
+    if message.from_user.id == int(ROOT_U):
         print(message.values)
         db.add_su_user(int(''.join([i for i in message.text if i.isdigit()])))
         await message.answer('Пользователь добавлен.', reply_markup=keyword_root_user)
