@@ -6,7 +6,7 @@ from data.bd import DataBase
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 
 load_dotenv(find_dotenv(filename='.env'), encoding="utf-8", override=True)
-TOKEN_BOT = os.getenv('TOKEN')
+TOKEN_BOT = os.environ.get('TOKEN')
 
 db = DataBase('data/database.db')
 

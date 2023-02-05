@@ -8,7 +8,7 @@ from keyboards.user_keyboards import keyword
 import os
 from dotenv import load_dotenv, find_dotenv
 load_dotenv(find_dotenv(filename='.env'), encoding="utf-8", override=True)
-ROOT_U = int(os.getenv('ROOT_USER'))
+ROOT_U = int(os.environ.get('ROOT_USER'))
 
 
 class FSMRoot(StatesGroup):
