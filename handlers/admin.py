@@ -76,6 +76,7 @@ async def command_how_many_users(message: types.Message):
         await message.answer(f'Активных пользователей: {len(db.select_users())}\n'
                              f'Не активных пользователей: {len(db.select_off_users())}')
         return
+
     else:
         await message.answer('Вы не являетесь администратором.', reply_markup=keyword)
 
