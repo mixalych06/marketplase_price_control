@@ -9,7 +9,7 @@ import os
 from dotenv import load_dotenv, find_dotenv
 
 load_dotenv(find_dotenv(filename='.env'), encoding="utf-8")
-ROOT_USER = int(os.getenv('ROOT_USER'))
+ROOT_U = int(os.getenv('ROOT_USER'))
 
 
 class FSMRoot(StatesGroup):
@@ -55,7 +55,7 @@ async def del_id_admin(message: types.Message, state: FSMContext):
 
 
 async def command_start_admin(message: types.Message):
-    if message.from_user.id == ROOT_USER:
+    if message.from_user.id == ROOT_U:
         await message.answer('Привет, Создатель!', reply_markup=keyword_root_user)
         return
     elif db.su_user_exists(message.from_user.id):
