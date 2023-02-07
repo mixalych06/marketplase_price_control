@@ -6,10 +6,10 @@ from data.bd import DataBase
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 
 load_dotenv(find_dotenv(filename='.env'), encoding="utf-8", override=True)
-TOKEN_BOT = os.environ.get('TOKEN')
+TOKEN = os.environ.get('TOKEN')
 
 db = DataBase('data/database.db')
 
-bot: Bot = Bot(token=TOKEN_BOT)
+bot: Bot = Bot(token=TOKEN)
 
 dp: Dispatcher = Dispatcher(bot, storage=MemoryStorage())

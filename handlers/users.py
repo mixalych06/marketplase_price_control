@@ -11,7 +11,7 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from random import choice
 
 HELLO = f'🤖Я Телеграм-Бот!\nЯ могу отслеживать цены товаров на Wildberries.\nДля отслеживани отправьте мне сообщение с ссылкой на товар.\n' \
-        f'Вы можете отправить мне до 10 ссылок' \
+        f'Вы можете отправить мне до 5 ссылок' \
         f'💌Я сообщу вам если:\n' \
         f'   ❤цена уменьшится.\n' \
         f'   ❤товар удалён\n' \
@@ -23,25 +23,26 @@ async def command_start(message: types.Message):
     if not db.user_exists(message.from_user.id):
         await bot.send_photo(message.from_user.id, photo='https://setemonic.ru/wp-content/uploads/c/2/2/c221894c8c4cae57e76286f759e01e72.jpeg',
                              caption=f'<b>Привет, {message.from_user.first_name}!</b>\n'
-                                     f'{HELLO}<i>С вопросами и предложениями по работе бота обращайтесь к администратору @mixalych06</i>',
+                                     f'{HELLO}<b>Нужно отслеживать больше товаров?</b>\n<b>Подключай 💎VIP💎</b>\n<i>Подробности у администратора '
+                                     f'@mixalych06</i>',
                              parse_mode='HTML', reply_markup=keyword)
         db.add_user(message.from_user.id)
     else:
         await bot.send_photo(message.from_user.id, photo='https://setemonic.ru/wp-content/uploads/c/2/2/c221894c8c4cae57e76286f759e01e72.jpeg',
                              caption=f'<b>Привет, {message.from_user.first_name}!</b>\n'
-                                     f'{HELLO}<i>С вопросами и предложениями по работе бота обращайтесь к администратору @mixalych06</i>',
+                                     f'{HELLO}<b>Нужно отслеживать больше товаров?</b>\n<b>Подключай 💎VIP💎</b>\n<i>Подробности у администратора '
+                                     f'@mixalych06</i>',
                              parse_mode='HTML', reply_markup=keyword)
 
 
-# @dp.message_handler(text='🆘Помощь')
 async def command_help(message: types.Message):
     await bot.send_photo(message.from_user.id, photo='https://setemonic.ru/wp-content/uploads/c/2/2/c221894c8c4cae57e76286f759e01e72.jpeg',
                          caption=f'<b>Привет, {message.from_user.first_name}!</b>\n'
-                                 f'{HELLO}<i>С вопросами и предложениями по работе бота обращайтесь к администратору @mixalych06</i>',
+                                 f'{HELLO}<b>Нужно отслеживать больше товаров?</b>\n<b>Подключай 💎VIP💎</b>\n<i>Подробности у администратора '
+                                 f'@mixalych06</i>',
                          parse_mode='HTML', reply_markup=keyword)
 
 
-# @dp.callback_query_handler(lambda x: x.data.startswith('del'))
 async def del_product(callback_query: types.CallbackQuery):
     inline_command = callback_query.data.split('|')
     db.del_product_bd((int(inline_command[1]), int(inline_command[2])))
@@ -49,7 +50,6 @@ async def del_product(callback_query: types.CallbackQuery):
                                 show_alert=True)
 
 
-# @dp.message_handler(text='🛍Мои товары')
 async def user_product(message: types.Message):
     all_prod = db.all_product_in_user(message.from_user.id)
     if all_prod:
@@ -72,7 +72,8 @@ async def user_product(message: types.Message):
             except aiogram.utils.exceptions.BadRequest:
                 if entries[8] == 1:
                     await bot.send_photo(message.from_user.id, photo='https://cs.pikabu.ru/post_img/2013/04/06/6/1365237582_329952055.jpg',
-                                         caption=f'Фото товара удалено или изменилось нажмите не кнопку не отслеживать, проверьте ссылку и отправьте мне её ещё раз'
+                                         caption=f'Фото товара удалено или изменилось нажмите не кнопку не отслеживать, проверьте ссылку и '
+                                                 f'отправьте мне её ещё раз '
                                                  f'<b>{entries[2]}</b>\n\n<b>Общая начальная цена:</b>  <i>{int(entries[3]) // 100} руб.</i>\n'
                                                  f'<b>Минимальная цена:</b>  <i>{int(entries[4]) // 100} руб.</i>\n'
                                                  f'<b>Текущая цена:</b>  <i>{int(entries[5]) // 100} руб.</i>\n{entries[7]}', parse_mode='HTML',
@@ -90,19 +91,39 @@ async def user_product(message: types.Message):
         await message.answer('У вас нет сохранённых ссылок')
 
 
-# @dp.message_handler()
 async def echo_send(message: types.Message):
     e = message.text
     all_prod = db.all_product_in_user(message.from_user.id)
-    if e.startswith('https://www.wildberries.ru') and 'detail.aspx' in e:
-        x = all_pars(e)
-        if db.select_user_prod(message.from_user.id, x['id']):
-            await message.reply(choice(['Эта ссылка уже отслеживается', 'Я уже слежу для Вас за этим товаром',
-                                        'Ссылка была добавлена ранее, я обязательно сообщу Вам об уменьшении цены']))
+    if 'wildberries.ru' in e and 'detail.aspx' in e:
+        try:
+            x = all_pars(e)
+            print(x)
+        except TypeError:
+            await message.reply('Не полная ссылка')
             return
-        elif all_prod and len(all_prod) > 9:
-            await message.reply('Я не умею отслеживать более 10 ссылок одновременно.\n'
-                                'Пожалуйста удалите ненужные ссылки')
+        if db.select_user_prod(message.from_user.id, x['id']):
+            await message.reply(choice(['🤖Эта ссылка уже отслеживается', '🤖Я уже слежу для Вас за этим товаром',
+                                        '🤖Ссылка была добавлена ранее, я обязательно сообщу Вам об уменьшении цены']))
+            return
+
+        elif db.vip_user_exists(message.from_user.id):
+            vip_user = db.vip_user(message.from_user.id)
+            if vip_user[1] - len(all_prod) >= 0:
+                await bot.send_photo(message.from_user.id, photo=x['link_photo'],
+                                     caption=f'<b>{x["name"]}</b>\n\n<b>Общая начальная цена:</b>  <i>{x["salePriceU"] // 100} руб.</i>\n'
+                                             f'<b>Минимальная цена:</b>  <i>{x["salePriceU"] // 100} руб.</i>\n'
+                                             f'<b>Текущая цена:</b>  <i>{x["salePriceU"] // 100} руб.\n{x["link"]}</i>', reply_markup=keyword,
+                                     parse_mode='HTML')
+                db.add_product(message.from_user.id, x)
+                return
+            else:
+                await message.reply(f'🤖Для вас я могу отследить до {vip_user[1]} ссылок одновременно.\n'
+                                    'Пожалуйста удалите ненужные ссылки или свяжитесь с администратором бота для увелиыения количества')
+                return
+
+        elif all_prod and len(all_prod) > 4:
+            await message.reply('🤖Я не умею отслеживать 🔦 более 5 ссылок одновременно.\n'
+                                'Пожалуйста удалите ненужные ссылки или свяжитесь с администратором бота для увелиыения количества')
             return
         else:
             await bot.send_photo(message.from_user.id, photo=x['link_photo'],
@@ -115,7 +136,7 @@ async def echo_send(message: types.Message):
     elif e.startswith('https://www.wildberries.ru') and not ('detail.aspx' in e):
         await message.reply('Не полная ссылка')
         return
-    elif e.startswith('https://www.ozon.ru'):
+    elif 'https://www.ozon.ru' in e:
         await message.reply('Это ссылка на Озон, я пока не научился с ним работать.')
         return
     else:

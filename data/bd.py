@@ -12,6 +12,7 @@ class DataBase:
                                 'activ INTEGER DEFAULT 1)')
         self.connection.execute('CREATE TABLE IF NOT EXISTS su_users (ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, su_user_id UNIQUE NOT NULL,'
                                 'activ INTEGER DEFAULT 1)')
+        self.connection.execute('CREATE TABLE IF NOT EXISTS vip_users (vip_user_id UNIQUE NOT NULL, quantity INTEGER DEFAULT 10)')
         self.connection.commit()
 
     def su_user_exists(self, su_user_id):
@@ -31,6 +32,34 @@ class DataBase:
     def del_su_user_bd(self, su_user_id):
         with self.connection:
             self.cursor.execute("DELETE FROM su_users WHERE su_user_id = ? ", (su_user_id,))
+            self.connection.commit()
+
+    def vip_user_db(self):
+        with self.connection:
+            return self.cursor.execute("SELECT * FROM vip_users").fetchall()
+
+    def vip_user(self, user_id):
+        with self.connection:
+            result = self.cursor.execute("SELECT * FROM vip_users WHERE vip_user_id = ?", (user_id,)).fetchmany(1)
+            return result[0]
+
+    def add_vip_user(self, vip_user_id, quantity):
+        with self.connection:
+            try:
+                self.cursor.execute("INSERT INTO vip_users (vip_user_id, quantity) VALUES (?, ?)", (vip_user_id, quantity))
+                self.connection.commit()
+            except sqlite3.IntegrityError:
+                self.cursor.execute("UPDATE vip_users SET quantity = ? WHERE vip_user_id = ?", (quantity, vip_user_id,))
+                self.connection.commit()
+
+    def vip_user_exists(self, user_id):
+        with self.connection:
+            result = self.cursor.execute("SELECT * FROM vip_users WHERE vip_user_id = ?", (user_id,)).fetchmany(1)
+            return bool(len(result))
+
+    def del_vip_user_bd(self, vip_user_id):
+        with self.connection:
+            self.cursor.execute("DELETE FROM vip_users WHERE vip_user_id = ? ", (vip_user_id,))
             self.connection.commit()
 
     def user_exists(self, user_id):
