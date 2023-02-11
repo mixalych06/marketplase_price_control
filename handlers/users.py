@@ -7,7 +7,8 @@ from aiogram import types
 from aiogram.dispatcher import Dispatcher
 
 from pars_wildberris import all_pars
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery, Message, InlineQueryResultPhoto, InputMediaPhoto, InputMedia, \
+    InputFile, InputMessageContent
 from random import choice
 
 HELLO = f'🤖Я Телеграм-Бот!\nЯ могу отслеживать цены товаров на Wildberries.\nДля отслеживани отправьте мне сообщение с ссылкой на товар.\n' \
@@ -50,8 +51,233 @@ async def del_product(callback_query: types.CallbackQuery):
                                 show_alert=True)
 
 
+async def next_product(callback_query: types.CallbackQuery):
+    inline_command = callback_query.data.split(':')
+    all_prod = db.all_product_in_user(callback_query.from_user.id)
+    number = int(inline_command[1])
+    no_phot = InputMediaPhoto(media='https://cs.pikabu.ru/post_img/2013/04/06/6/1365237582_329952055.jpg',
+                              caption=f'Фото товара или ссылка удалены или изменилисьь нажмите не кнопку не отслеживать, проверьте ссылку и '
+                                      f'отправьте мне её ещё раз '
+                                      f'<b>{all_prod[number][2]}</b>\n\n<b>Общая начальная цена:</b>  <i>{int(all_prod[number][3]) // 100} руб.</i>\n'
+                                      f'<b>Минимальная цена:</b>  <i>{int(all_prod[number][4]) // 100} руб.</i>\n'
+                                      f'<b>Текущая цена:</b>  <i>{int(all_prod[number][5]) // 100} руб.</i>\n{all_prod[number][7]}',
+                              parse_mode='HTML')
+    no_url = InputMediaPhoto(media=all_prod[number][6],
+                             caption=f'<b>{all_prod[number][2]}</b>\n\n<b>Общая начальная цена:</b>  <i>{int(all_prod[number][3]) // 100} руб.</i>\n'
+                                     f'<b>Минимальная цена:</b>  <i>{int(all_prod[number][4]) // 100} руб.</i>\n'
+                                     f'<b>Текущая цена:</b>  <i>{int(all_prod[number][5]) // 100} руб.</i>\nСсылка удалена продавцом',
+                             parse_mode='HTML')
+
+    phot = InputMediaPhoto(media=all_prod[number][6],
+                           caption=f'<b>{all_prod[number][2]}</b>\n\n<b>Общая начальная цена:</b>  <i>{int(all_prod[number][3]) // 100} руб.</i>\n'
+                                   f'<b>Минимальная цена:</b>  <i>{int(all_prod[number][4]) // 100} руб.</i>\n'
+                                   f'<b>Текущая цена:</b>  <i>{int(all_prod[number][5]) // 100} руб.</i>\n{all_prod[number][7]}',
+                           parse_mode='HTML')
+    if len(all_prod) == 1:
+        await callback_query.bot.edit_message_media(chat_id=callback_query.message.chat.id, message_id=callback_query.message.message_id,
+                                                    media=phot,
+                                                    reply_markup=InlineKeyboardMarkup(row_width=4).add(
+                                                        InlineKeyboardButton(str(number + 1) + '/' + str(len(all_prod)),
+                                                                             callback_data="null"),
+                                                        InlineKeyboardButton('❌',
+                                                                             callback_data=f"del|{callback_query.from_user.id}|{all_prod[number][1]}|{all_prod[number][2][:10]}"),
+                                                    ))
+        await callback_query.answer()
+        return
+
+    elif 0 < number < len(all_prod) - 1:
+        try:
+            if all_prod[number][8] == 1:
+                await callback_query.bot.edit_message_media(chat_id=callback_query.message.chat.id, message_id=callback_query.message.message_id,
+                                                            media=phot,
+                                                            reply_markup=InlineKeyboardMarkup(row_width=4).add(
+                                                                InlineKeyboardButton("<<<", callback_data=f"next:{number - 1}"),
+                                                                InlineKeyboardButton(str(number + 1) + '/' + str(len(all_prod)),
+                                                                                     callback_data="null"),
+                                                                InlineKeyboardButton('❌',
+                                                                                     callback_data=f"del|{callback_query.from_user.id}|{all_prod[number][1]}|{all_prod[number][2][:10]}"),
+                                                                InlineKeyboardButton(">>>", callback_data=f"next:{number + 1}")))
+                await callback_query.answer()
+                return
+            else:
+                await callback_query.bot.edit_message_media(chat_id=callback_query.message.chat.id, message_id=callback_query.message.message_id,
+                                                            media=no_url,
+                                                            reply_markup=InlineKeyboardMarkup(row_width=4).add(
+                                                                InlineKeyboardButton("<<<", callback_data=f"next:{number - 1}"),
+                                                                InlineKeyboardButton(str(number + 1) + '/' + str(len(all_prod)),
+                                                                                     callback_data="null"),
+                                                                InlineKeyboardButton('❌',
+                                                                                     callback_data=f"del|{callback_query.from_user.id}|{all_prod[number][1]}|{all_prod[number][2][:10]}"),
+                                                                InlineKeyboardButton(">>>", callback_data=f"next:{number + 1}")))
+                await callback_query.answer()
+                return
+
+        except aiogram.utils.exceptions.BadRequest:
+            await callback_query.bot.edit_message_media(chat_id=callback_query.message.chat.id, message_id=callback_query.message.message_id,
+                                                        media=no_phot,
+                                                        reply_markup=InlineKeyboardMarkup(row_width=4).add(
+                                                            InlineKeyboardButton("<<<", callback_data=f"next:{number - 1}"),
+                                                            InlineKeyboardButton(str(number + 1) + '/' + str(len(all_prod)),
+                                                                                 callback_data="null"),
+                                                            InlineKeyboardButton('❌',
+                                                                                 callback_data=f"del|{callback_query.from_user.id}|{all_prod[number][1]}|{all_prod[number][2][:10]}"),
+                                                            InlineKeyboardButton(">>>", callback_data=f"next:{number + 1}")))
+            await callback_query.answer()
+            return
+    elif number == 0:
+        try:
+            if all_prod[number][8] == 1:
+                await callback_query.bot.edit_message_media(chat_id=callback_query.message.chat.id, message_id=callback_query.message.message_id,
+                                                            media=phot,
+                                                            reply_markup=InlineKeyboardMarkup(row_width=4).add(
+
+                                                                InlineKeyboardButton(str(number + 1) + '/' + str(len(all_prod)),
+                                                                                     callback_data="null"),
+                                                                InlineKeyboardButton('❌',
+                                                                                     callback_data=f"del|{callback_query.from_user.id}|{all_prod[number][1]}|{all_prod[number][2][:10]}"),
+                                                                InlineKeyboardButton(">>>", callback_data=f"next:{number + 1}")))
+                await callback_query.answer()
+                return
+            else:
+                await callback_query.bot.edit_message_media(chat_id=callback_query.message.chat.id, message_id=callback_query.message.message_id,
+                                                            media=no_url,
+                                                            reply_markup=InlineKeyboardMarkup(row_width=4).add(
+
+                                                                InlineKeyboardButton(str(number + 1) + '/' + str(len(all_prod)),
+                                                                                     callback_data="null"),
+                                                                InlineKeyboardButton('❌',
+                                                                                     callback_data=f"del|{callback_query.from_user.id}|{all_prod[number][1]}|{all_prod[number][2][:10]}"),
+                                                                InlineKeyboardButton(">>>", callback_data=f"next:{number + 1}")))
+                await callback_query.answer()
+                return
+
+        except aiogram.utils.exceptions.BadRequest:
+            await callback_query.bot.edit_message_media(chat_id=callback_query.message.chat.id, message_id=callback_query.message.message_id,
+                                                        media=no_phot,
+                                                        reply_markup=InlineKeyboardMarkup(row_width=4).add(
+
+                                                            InlineKeyboardButton(str(number + 1) + '/' + str(len(all_prod)),
+                                                                                 callback_data="null"),
+                                                            InlineKeyboardButton('❌',
+                                                                                 callback_data=f"del|{callback_query.from_user.id}|{all_prod[number][1]}|{all_prod[number][2][:10]}"),
+                                                            InlineKeyboardButton(">>>", callback_data=f"next:{number + 1}")))
+            await callback_query.answer()
+            return
+
+    elif number == len(all_prod) - 1:
+        try:
+            if all_prod[number][8] == 1:
+                await callback_query.bot.edit_message_media(chat_id=callback_query.message.chat.id, message_id=callback_query.message.message_id,
+                                                            media=phot,
+                                                            reply_markup=InlineKeyboardMarkup(row_width=4).add(
+                                                                InlineKeyboardButton("<<<", callback_data=f"next:{number - 1}"),
+                                                                InlineKeyboardButton(str(number + 1) + '/' + str(len(all_prod)),
+                                                                                     callback_data="null"),
+                                                                InlineKeyboardButton('❌',
+                                                                                     callback_data=f"del|{callback_query.from_user.id}|{all_prod[number][1]}|{all_prod[number][2][:10]}")))
+                await callback_query.answer()
+                return
+            else:
+                await callback_query.bot.edit_message_media(chat_id=callback_query.message.chat.id, message_id=callback_query.message.message_id,
+                                                            media=no_url,
+                                                            reply_markup=InlineKeyboardMarkup(row_width=4).add(
+                                                                InlineKeyboardButton("<<<", callback_data=f"next:{number - 1}"),
+                                                                InlineKeyboardButton(str(number + 1) + '/' + str(len(all_prod)),
+                                                                                     callback_data="null"),
+                                                                InlineKeyboardButton('❌',
+                                                                                     callback_data=f"del|{callback_query.from_user.id}|{all_prod[number][1]}|{all_prod[number][2][:10]}")))
+                await callback_query.answer()
+                return
+
+        except aiogram.utils.exceptions.BadRequest:
+            await callback_query.bot.edit_message_media(chat_id=callback_query.message.chat.id, message_id=callback_query.message.message_id,
+                                                        media=no_phot,
+                                                        reply_markup=InlineKeyboardMarkup(row_width=4).add(
+                                                            InlineKeyboardButton("<<<", callback_data=f"next:{number - 1}"),
+                                                            InlineKeyboardButton(str(number + 1) + '/' + str(len(all_prod)),
+                                                                                 callback_data="null"),
+                                                            InlineKeyboardButton('❌',
+                                                                                 callback_data=f"del|{callback_query.from_user.id}|{all_prod[number][1]}|{all_prod[number][2][:10]}")))
+            await callback_query.answer()
+            return
+
+
 async def user_product(message: types.Message):
     all_prod = db.all_product_in_user(message.from_user.id)
+    number = 0
+    if all_prod:
+        try:
+            if len(all_prod) == 1:
+                await bot.send_photo(message.from_user.id, photo=all_prod[number][6],
+                                     caption=f'<b>{all_prod[number][2]}</b>\n\n<b>Общая начальная цена:</b>  <i>{int(all_prod[number][3]) // 100} руб.</i>\n'
+                                             f'<b>Минимальная цена:</b>  <i>{int(all_prod[number][4]) // 100} руб.</i>\n'
+                                             f'<b>Текущая цена:</b>  <i>{int(all_prod[number][5]) // 100} руб.</i>\n{all_prod[number][7]}',
+                                     parse_mode='HTML',
+                                     reply_markup=InlineKeyboardMarkup(row_width=4).add(
+                                         InlineKeyboardButton(str(number + 1) + '/' + str(len(all_prod)),
+                                                              callback_data="null"),
+                                         InlineKeyboardButton('❌',
+                                                              callback_data=f"del|{message.from_user.id}|{all_prod[number][1]}|{all_prod[number][2][:10]}")))
+            elif all_prod[number][8] == 1:
+                await bot.send_photo(message.from_user.id, photo=all_prod[number][6],
+                                     caption=f'<b>{all_prod[number][2]}</b>\n\n<b>Общая начальная цена:</b>  <i>{int(all_prod[number][3]) // 100} руб.</i>\n'
+                                             f'<b>Минимальная цена:</b>  <i>{int(all_prod[number][4]) // 100} руб.</i>\n'
+                                             f'<b>Текущая цена:</b>  <i>{int(all_prod[number][5]) // 100} руб.</i>\n{all_prod[number][7]}',
+                                     parse_mode='HTML',
+                                     reply_markup=InlineKeyboardMarkup(row_width=4).add(
+                                         InlineKeyboardButton(str(number + 1) + '/' + str(len(all_prod)),
+                                                              callback_data="null"),
+                                         InlineKeyboardButton('❌',
+                                                              callback_data=f"del|{message.from_user.id}|{all_prod[number][1]}|{all_prod[number][2][:10]}"),
+                                         InlineKeyboardButton(">>>", callback_data=f"next:{number + 1}")))
+                return
+            else:
+                await bot.send_photo(message.from_user.id, photo=all_prod[number][6],
+                                     caption=f'<b>{all_prod[number][2]}</b>\n\n<b>Общая начальная цена:</b>  <i>{int(all_prod[number][3]) // 100} руб.</i>\n'
+                                             f'<b>Минимальная цена:</b>  <i>{int(all_prod[number][4]) // 100} руб.</i>\n'
+                                             f'<b>Текущая цена:</b>  <i>Ссылка удалена</i>\n{all_prod[number][7]}', parse_mode='HTML',
+                                     reply_markup=InlineKeyboardMarkup(row_width=4).add(
+                                         InlineKeyboardButton(str(number + 1) + '/' + str(len(all_prod)),
+                                                              callback_data="null"),
+                                         InlineKeyboardButton('❌',
+                                                              callback_data=f"del|{message.from_user.id}|{all_prod[number][1]}|{all_prod[number][2][:10]}"),
+                                         InlineKeyboardButton(">>>", callback_data=f"next:{number + 1}")))
+                return
+        except aiogram.utils.exceptions.BadRequest:
+            if all_prod[0][8] == 1:
+                await bot.send_photo(message.from_user.id, photo='https://cs.pikabu.ru/post_img/2013/04/06/6/1365237582_329952055.jpg',
+                                     caption=f'Фото товара удалено или изменилось нажмите не кнопку не отслеживать, проверьте ссылку и '
+                                             f'отправьте мне её ещё раз '
+                                             f'<b>{all_prod[number][2]}</b>\n\n<b>Общая начальная цена:</b>  <i>{int(all_prod[number][3]) // 100} руб.</i>\n'
+                                             f'<b>Минимальная цена:</b>  <i>{int(all_prod[number][4]) // 100} руб.</i>\n'
+                                             f'<b>Текущая цена:</b>  <i>{int(all_prod[number][5]) // 100} руб.</i>\n{all_prod[number][7]}',
+                                     parse_mode='HTML',
+                                     reply_markup=InlineKeyboardMarkup(row_width=4).add(
+                                         InlineKeyboardButton(str(number + 1) + '/' + str(len(all_prod)),
+                                                              callback_data="null"),
+                                         InlineKeyboardButton('❌',
+                                                              callback_data=f"del|{message.from_user.id}|{all_prod[number][1]}|{all_prod[number][2][:10]}"),
+                                         InlineKeyboardButton(">>>", callback_data=f"next:{number + 1}")))
+                return
+            else:
+                await bot.send_photo(message.from_user.id, photo='https://cs.pikabu.ru/post_img/2013/04/06/6/1365237582_329952055.jpg',
+                                     caption=f'<b>{all_prod[number][2]}</b>\n\n<b>Общая начальная цена:</b>  <i>{int(all_prod[number][3]) // 100} руб.</i>\n'
+                                             f'<b>Минимальная цена:</b>  <i>{int(all_prod[number][4]) // 100} руб.</i>\n'
+                                             f'<b>Текущая цена:</b>  <i>Ссылка удалена</i>\n{all_prod[number][7]}', parse_mode='HTML',
+                                     reply_markup=InlineKeyboardMarkup(row_width=4).add(
+                                         InlineKeyboardButton(str(number + 1) + '/' + str(len(all_prod)),
+                                                              callback_data="null"),
+                                         InlineKeyboardButton('❌',
+                                                              callback_data=f"del|{message.from_user.id}|{all_prod[number][1]}|{all_prod[number][2][:10]}"),
+                                         InlineKeyboardButton(">>>", callback_data=f"next:{number + 1}")))
+                return
+    else:
+        await message.answer('У вас нет сохранённых ссылок')
+
+
+async def user_product_all(message: types.Message):
+    all_prod = db.all_product_in_user(message.from_user.id)
+    print(all_prod)
     if all_prod:
         for entries in all_prod:
             try:
@@ -97,7 +323,6 @@ async def echo_send(message: types.Message):
     if 'wildberries.ru' in e and 'detail.aspx' in e:
         try:
             x = all_pars(e)
-            print(x)
         except TypeError:
             await message.reply('Не полная ссылка')
             return
@@ -148,6 +373,7 @@ async def echo_send(message: types.Message):
 
 def register_handlers_client(dp: Dispatcher):
     dp.register_callback_query_handler(del_product, lambda x: x.data.startswith('del'))
+    dp.register_callback_query_handler(next_product, lambda x: x.data.startswith('next'))
     dp.register_message_handler(command_start, commands=['start', 'help'])
     dp.register_message_handler(command_help, text=['🆘Помощь'])
     dp.register_message_handler(user_product, text=['🛍Мои товары'])

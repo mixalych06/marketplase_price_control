@@ -26,30 +26,32 @@ async def scheduled(wait_for):
                             new_pars_produkt = parsing_evry_day(prod[7])
                         else:
                             new_pars_produkt = parsing_evry_day(prod[7])
-                            await bot.send_message(user[0], text=f'{prod[2]}\nСнова в продаже')
+                            await bot.send_message(user[0], text=f'<i><b>{prod[2]}</b></i>\nСнова в продаже')
                             db.changes_product_valye(prod[0], prod[1], 1)
 
                     except IndexError:
                         if prod[8]:
-                            await bot.send_message(user[0], text=f'{prod[2]}\nСсылка удалена')
+                            await bot.send_message(user[0], text=f'<i><b>{prod[2]}</b></i>\nСсылка удалена')
                             db.changes_product_valye(prod[0], prod[1], 0)
 
                     try:
                         if prod[8]:
                             if new_pars_produkt['salePriceU'] < prod[3] and new_pars_produkt['salePriceU'] < prod[4]:
                                 '''шлём сообщение о снижении ценыб перезаписываем минималку и текущую'''
-                                await bot.send_message(user[0], text=f'{prod[2]}\nЦена снижена.\nМеньше начальной цены на '
+                                await bot.send_message(user[0], text=f'<i><b>{prod[2]}</b></i>\n<b>💸Цена снижена.💸</b>\nМеньше начальной цены на '
                                                                      f'{int(100 - ((new_pars_produkt["salePriceU"]//100) * 100 / (int(prod[3])//100)))}%\n'
-                                                                     f'Цена минимальная🤑 с момента отслеживания.')
+                                                                     f'Цена минимальная🤑 с момента отслеживания.\n'
+                                                                     f'<i>{prod[7]}</i>', parse_mode='HTML')
                                 db.changes_product_data((new_pars_produkt['salePriceU'], new_pars_produkt['salePriceU'], prod[0], prod[1]))
-                                sleep(1)
+
                                 continue
                             elif new_pars_produkt['salePriceU'] < prod[5] and new_pars_produkt['salePriceU'] >= prod[4] and new_pars_produkt['salePriceU'] < prod[3]:
                                 '''сообщение о снижении, перезаписываем текущую'''
-                                await bot.send_message(user[0], text=f'{prod[2]}\nЦена снижена.\nМеньше начальной цены на'
-                                                                     f'{int(100 - ((new_pars_produkt["salePriceU"] // 100) * 100 / (int(prod[3]) // 100)))}%\n')
+                                await bot.send_message(user[0], text=f'<i><b>{prod[2]}</b></i>\n<b>💸Цена снижена.💸</b>\nМеньше начальной цены на'
+                                                                     f'{int(100 - ((new_pars_produkt["salePriceU"] // 100) * 100 / (int(prod[3]) // 100)))}%\n'
+                                                                     f'<i>{prod[7]}</i>', parse_mode='HTML')
                                 db.changes_product_data((prod[4], new_pars_produkt['salePriceU'], prod[0], prod[1]))
-                                sleep(1)
+
                                 continue
                             else:
                                 db.changes_product_data((prod[4], new_pars_produkt['salePriceU'], prod[0], prod[1]))

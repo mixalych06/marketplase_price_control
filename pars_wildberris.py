@@ -21,7 +21,7 @@ def img_by_id(id_ph):
     headers = {'User-Agent': UserAgent().chrome}
     basket = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10']
     for i in basket:
-        s = f'https://basket-{i}.wb.ru/vol{id_ph[:-5]}/part{id_ph[:-3]}/{id_ph}/images/big/1.jpg'
+        s = f'https://basket-{i}.wb.ru/vol{id_ph[:-5]}/part{id_ph[:-3]}/{id_ph}/images/c246x328/1.jpg'
         img_link = requests.get(s, headers)
         if img_link.status_code != 404:
             return s
@@ -51,7 +51,7 @@ def all_pars(url):
     a = generates_link_request(id_all)
     all_bd = (selects_values(a))
     all_bd.setdefault('link_photo', lin)
-    all_bd.setdefault('link', url)
+    all_bd.setdefault('link', url.split('\n')[-1])
     return all_bd
 
 
