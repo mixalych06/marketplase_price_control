@@ -36,25 +36,25 @@ async def scheduled(wait_for):
 
                     try:
                         if prod[8]:
-                            if new_pars_produkt['salePriceU'] < prod[3] and new_pars_produkt['salePriceU'] < prod[4]:
+                            if new_pars_produkt['basicPriceU'] < prod[3] and new_pars_produkt['basicPriceU'] < prod[4]:
                                 '''шлём сообщение о снижении ценыб перезаписываем минималку и текущую'''
                                 await bot.send_message(user[0], text=f'<i><b>{prod[2]}</b></i>\n<b>💸Цена снижена.💸</b>\nМеньше начальной цены на '
-                                                                     f'{int(100 - ((new_pars_produkt["salePriceU"]//100) * 100 / (int(prod[3])//100)))}%\n'
+                                                                     f'{int(100 - ((new_pars_produkt["basicPriceU"]//100) * 100 / (int(prod[3])//100)))}%\n'
                                                                      f'Цена минимальная🤑 с момента отслеживания.\n'
                                                                      f'<i>{prod[7]}</i>', parse_mode='HTML')
-                                db.changes_product_data((new_pars_produkt['salePriceU'], new_pars_produkt['salePriceU'], prod[0], prod[1]))
+                                db.changes_product_data((new_pars_produkt['basicPriceU'], new_pars_produkt['basicPriceU'], prod[0], prod[1]))
 
                                 continue
-                            elif new_pars_produkt['salePriceU'] < prod[5] and new_pars_produkt['salePriceU'] >= prod[4] and new_pars_produkt['salePriceU'] < prod[3]:
+                            elif new_pars_produkt['basicPriceU'] < prod[5] and new_pars_produkt['basicPriceU'] >= prod[4] and new_pars_produkt['basicPriceU'] < prod[3]:
                                 '''сообщение о снижении, перезаписываем текущую'''
                                 await bot.send_message(user[0], text=f'<i><b>{prod[2]}</b></i>\n<b>💸Цена снижена.💸</b>\nМеньше начальной цены на'
-                                                                     f'{int(100 - ((new_pars_produkt["salePriceU"] // 100) * 100 / (int(prod[3]) // 100)))}%\n'
+                                                                     f'{int(100 - ((new_pars_produkt["basicPriceU"] // 100) * 100 / (int(prod[3]) // 100)))}%\n'
                                                                      f'<i>{prod[7]}</i>', parse_mode='HTML')
-                                db.changes_product_data((prod[4], new_pars_produkt['salePriceU'], prod[0], prod[1]))
+                                db.changes_product_data((prod[4], new_pars_produkt['basicPriceU'], prod[0], prod[1]))
 
                                 continue
                             else:
-                                db.changes_product_data((prod[4], new_pars_produkt['salePriceU'], prod[0], prod[1]))
+                                db.changes_product_data((prod[4], new_pars_produkt['basicPriceU'], prod[0], prod[1]))
 
                     except:
 

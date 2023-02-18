@@ -335,9 +335,9 @@ async def echo_send(message: types.Message):
             vip_user = db.vip_user(message.from_user.id)
             if vip_user[1] - len(all_prod) >= 0:
                 await bot.send_photo(message.from_user.id, photo=x['link_photo'],
-                                     caption=f'<b>{x["name"]}</b>\n\n<b>Общая начальная цена:</b>  <i>{x["salePriceU"] // 100} руб.</i>\n'
-                                             f'<b>Минимальная цена:</b>  <i>{x["salePriceU"] // 100} руб.</i>\n'
-                                             f'<b>Текущая цена:</b>  <i>{x["salePriceU"] // 100} руб.\n{x["link"]}</i>', reply_markup=keyword,
+                                     caption=f'<b>{x["name"]}</b>\n\n<b>Общая начальная цена:</b>  <i>{x["basicPriceU"] // 100} руб.</i>\n'
+                                             f'<b>Минимальная цена:</b>  <i>{x["basicPriceU"] // 100} руб.</i>\n'
+                                             f'<b>Текущая цена:</b>  <i>{x["basicPriceU"] // 100} руб.\n{x["link"]}</i>', reply_markup=keyword,
                                      parse_mode='HTML')
                 db.add_product(message.from_user.id, x)
                 return
@@ -353,9 +353,9 @@ async def echo_send(message: types.Message):
             return
         else:
             await bot.send_photo(message.from_user.id, photo=x['link_photo'],
-                                 caption=f'<b>{x["name"]}</b>\n\n<b>Общая начальная цена:</b>  <i>{x["salePriceU"] // 100} руб.</i>\n'
-                                         f'<b>Минимальная цена:</b>  <i>{x["salePriceU"] // 100} руб.</i>\n'
-                                         f'<b>Текущая цена:</b>  <i>{x["salePriceU"] // 100} руб.\n{x["link"]}</i>', reply_markup=keyword,
+                                 caption=f'<b>{x["name"]}</b>\n\n<b>Общая начальная цена:</b>  <i>{x["basicPriceU"] // 100} руб.</i>\n'
+                                         f'<b>Минимальная цена:</b>  <i>{x["basicPriceU"] // 100} руб.</i>\n'
+                                         f'<b>Текущая цена:</b>  <i>{x["basicPriceU"] // 100} руб.\n{x["link"]}</i>', reply_markup=keyword,
                                  parse_mode='HTML')
             db.add_product(message.from_user.id, x)
             return

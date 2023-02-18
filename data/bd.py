@@ -92,7 +92,7 @@ class DataBase:
     def add_product(self, user_id, product: dict):
         bd_user_prod = [user_id]
         bd_user_prod.extend(product.values())
-        bd_user_prod.extend([product['salePriceU'], product['salePriceU']])
+        bd_user_prod.extend([product['basicPriceU'], product['basicPriceU']])
         with self.connection:
             self.cursor.execute("INSERT INTO users_product (user_id, id_prod, name_prod, start_prise, link_photo, link, min_prise, prise) "
                                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?)", bd_user_prod)

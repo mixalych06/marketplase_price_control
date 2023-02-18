@@ -18,6 +18,7 @@ def defines_product_id(urls_user: str):
 
 
 def img_by_id(id_ph):
+    """ищет фото. Нужено найти как проще(где хранится фото???)"""
     headers = {'User-Agent': UserAgent().chrome}
     basket = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10']
     for i in basket:
@@ -37,15 +38,20 @@ def generates_link_request(id_prod):
 
 def selects_values(js_dict):
     """Выбирает нужные характеристики"""
-    a = ['id', 'name', 'salePriceU']
+    a = ['id', 'name']
     dict_bd = {}
     for i in js_dict['data']['products'][0].items():
         if i[0] in a:
             dict_bd.setdefault(i[0], i[1])
+    try:
+        dict_bd.setdefault('basicPriceU', js_dict['data']['products'][0]['extended']['basicPriceU'])
+    except KeyError:
+        dict_bd.setdefault('basicPriceU', js_dict['data']['products'][0]['priceU'])
     return dict_bd
 
 
 def all_pars(url):
+    """При первом парсенге ссылки"""
     id_all = defines_product_id(url)
     lin = img_by_id(str(id_all))
     a = generates_link_request(id_all)
@@ -56,7 +62,9 @@ def all_pars(url):
 
 
 def parsing_evry_day(url):
+    """проверка изменения цены"""
     id_all = defines_product_id(url)
     a = generates_link_request(id_all)
     all_bd = (selects_values(a))
     return all_bd
+
