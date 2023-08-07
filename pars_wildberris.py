@@ -2,6 +2,7 @@
 import requests
 from fake_useragent import UserAgent
 
+
 url_get = 'https://card.wb.ru/cards/detail?spp=0&regions=80,4,38,70,69,86,30,40,48,1,' \
           '112&pricemarginCoeff=1&reg=0&appType=1&emp=0&locale=ru&lang=ru&curr=rub&couponsGeo=' \
           '2,12,7,6,9,21,11&dest=-1221185,-147166,-1749247,123585533&nm='
@@ -18,14 +19,46 @@ def defines_product_id(urls_user: str):
 
 
 def img_by_id(id_ph):
-    """ищет фото. Нужено найти как проще(где хранится фото???)"""
+    """формирует ссылу на фото товара"""
     headers = {'User-Agent': UserAgent().chrome}
-    basket = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10']
-    for i in basket:
-        s = f'https://basket-{i}.wb.ru/vol{id_ph[:-5]}/part{id_ph[:-3]}/{id_ph}/images/c246x328/1.jpg'
-        img_link = requests.get(s, headers)
-        if img_link.status_code != 404:
-            return s
+    short_id = int(id_ph) // 100000
+    basket =''
+    match short_id:
+        case num if num in range(0, 144):
+            basket = '01'
+        case num if num in range(144, 288):
+            basket = '02'
+        case num if num in range(288, 432):
+            basket = '03'
+        case num if num in range(432, 720):
+            basket = '04'
+        case num if num in range(720, 1008):
+            basket = '05'
+        case num if num in range(1008, 1062):
+            basket = '06'
+        case num if num in range(1062, 1116):
+            basket = '07'
+        case num if num in range(1116, 1170):
+            basket = '08'
+        case num if num in range(1170, 1314):
+            basket = '09'
+        case num if num in range(1314, 1602):
+            basket = '10'
+        case num if num in range(1602, 1656):
+            basket = '11'
+        case num if num in range(1656, 1920):
+            basket = '12'
+        case _:
+            basket = '13'  # Если _short_id не входит ни в один из предыдущих диапазонов, присвоить '13' basket-у
+    s = f'https://basket-{basket}.wb.ru/vol{short_id}/part{int(id_ph)// 1000}/{id_ph}/images/c246x328/1.jpg'
+    try:
+        requests.get(s, headers)
+        return s
+    except:
+        s = 'https://avatars.mds.yandex.net/i?id=a53e9cddb18926e986bddd7acb96cd3973307967-10088009-images-thumbs&n=13'
+        return s
+
+
 
 
 def generates_link_request(id_prod):
